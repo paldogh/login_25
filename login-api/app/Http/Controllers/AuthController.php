@@ -30,27 +30,33 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password'=> 'required'
-        ]);
+  public function login(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password'=> 'required'
+    ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['errors' => ['Credenciales incorrectas']], 422);
-        }
-//   json(['errors' => ['Credenciales ccorrectas']], 422);
-        $user = Auth::user();
-        return response()->json([
-            'token' => $user->createToken('token')->plainTextToken,
-            'user' => $user
-        ]);
+    if (!Auth::attempt($request->only('email', 'password'))) {
+        return response()->json(['errors' => ['Credenciales incorrectas']], 422);
     }
 
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Sesión cerrada']);
-    }
+    $request->session()->regenerate(); // importante para seguridad
+
+    return response()->json([
+        'message' => 'Inicio de sesión exitoso',
+        'user' => Auth::user()
+    ]);
+}
+
+public function logout(Request $request)
+{
+    Auth::guard('web')->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return response()->json(['message' => 'Sesión cerrada correctamente']);
+}
+
+
 }

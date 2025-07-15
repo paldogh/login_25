@@ -3,13 +3,14 @@ import Cookies from 'js-cookie';
 
 const clienteAxios = axios.create({
   baseURL: 'http://localhost:8000',
-  withCredentials: true,
+  withCredentials: true, // necesario para enviar cookies
   headers: {
-    'Accept': 'application/json',
+    Accept: 'application/json',
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest',
     'X-XSRF-TOKEN': decodeURIComponent(Cookies.get('XSRF-TOKEN') || '')
   }
 });
+
 
 export default clienteAxios;

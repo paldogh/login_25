@@ -8,26 +8,19 @@ export const useAuth = ({ middleware, url }) => {
     const navigate = useNavigate();
     const token = localStorage.getItem('AUTH_TOKEN');
 
-    // ✅ Solo llama a /api/user si hay token
-    const { data: user, error, mutate } = useSWR(
-        token ? '/api/user' : null,
-        () =>
-            clienteAxios('/api/user', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+    //  Solo llama a /api/user si hay token
+   const { data: user, error, mutate } = useSWR(
+    '/api/user',
+    () =>
+        clienteAxios('/api/user')
             .then(res => res.data)
             .catch(error => {
-                if (error.response?.status === 401) {
-                    console.log("Token inválido, eliminando...");
-                    localStorage.removeItem('AUTH_TOKEN');
-                }
                 throw Error(error?.response?.data?.message || 'Error al autenticar usuario');
             })
-    );
+);
 
-    // ✅ Login
+
+    //  Login
     const login = async (datos, setErrores) => {
         try {
             await clienteAxios.get('/sanctum/csrf-cookie');
@@ -48,7 +41,7 @@ export const useAuth = ({ middleware, url }) => {
         }
     };
 
-    // ✅ Registro
+    // Registro
     const registro = async (datos, setErrores) => {
         try {
             await clienteAxios.get('/sanctum/csrf-cookie');
@@ -61,23 +54,17 @@ export const useAuth = ({ middleware, url }) => {
         }
     };
 
-    // ✅ Logout
-    const logout = async () => {
-        try {
-            await clienteAxios.post('/api/logout', null, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-        } catch (error) {
-            console.error("Error al cerrar sesión:", error);
-        } finally {
-            localStorage.removeItem('AUTH_TOKEN');
-            await mutate(undefined);  // Limpia el user en SWR
-        }
-    };
+    // Logout
+const logout = async () => {
+    try {
+        await clienteAxios.post('/api/logout');
+        await mutate(undefined);
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
+};
 
-    // ✅ Efecto de redirección según el estado de auth
+    //  Efecto de redirección según el estado de auth
     useEffect(() => {
         // 🔍 Verifica que ya se resolvió el fetch
         if (typeof user === 'undefined' && typeof error === 'undefined') return;

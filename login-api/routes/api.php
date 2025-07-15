@@ -30,7 +30,7 @@ Route::middleware('auth:sanctum')->group(function() {
 Route::post('/registro', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-//ruta para welcome
+//ruta para welcome --> fue el de examen<-- cambialo a 
 Route::get('/welcome', [WelcomeController::class, 'index'])->name('welcome.index');
 
 

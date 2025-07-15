@@ -55,14 +55,23 @@ export const useAuth = ({ middleware, url }) => {
     };
 
     // Logout
+// useAuth.js
 const logout = async () => {
-    try {
-        await clienteAxios.post('/api/logout');
-        await mutate(undefined);
-    } catch (error) {
-        console.error("Error al cerrar sesión:", error);
-    }
+  try {
+    await clienteAxios.get('/sanctum/csrf-cookie'); // 👈 NECESARIO
+    await clienteAxios.post('/api/logout', null, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('AUTH_TOKEN')}`
+      }
+    });
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  } finally {
+    localStorage.removeItem('AUTH_TOKEN');
+    await mutate(undefined);
+  }
 };
+
 
     //  Efecto de redirección según el estado de auth
     useEffect(() => {
